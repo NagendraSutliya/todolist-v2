@@ -34,18 +34,24 @@ const item3 = new Item({
 
 const defaultItems = [item1, item2, item3];
 
-Item.insertMany(defaultItems, function(err){
-  if (err) {
-    console.log(err);
-  } else {
-    console.log("Successfully saved default items to DB.");
-  }
-});
 
 app.get("/", function(req, res) {
 
-  res.render("list", {listTitle: Today, newListItems: items});
+  Item.find({}, function(err, foundItems){
 
+    if (foundItems.length === 0) {
+      Item.insertMany(defaultItems, function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Successfully saved default items to DB.");
+        }
+      });
+      res.redirect("/");
+    } else {
+      res.render("list", {listTitle: "Today", newListItems: foundItems});
+    }
+  });
 });
 
 app.post("/", function(req, res){
@@ -69,6 +75,6 @@ app.get("/about", function(req, res){
   res.render("about");
 });
 
-app.listen(3000, function() {
+app.listen(3050, function() {
   console.log("Server started on port 3050");
 });
